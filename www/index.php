@@ -33,8 +33,8 @@ $languages = [
         'en' => 'Signup form'
     ],
     'intro' => [
-        'nl' => 'lorem ipsun nl',
-        'en' => 'lorem ipsun en'
+        'nl' => 'lorem ipsum nl',
+        'en' => 'lorem ipsum en'
     ],
     'label_firstname' => [
         'nl' => 'Voornaam',
@@ -115,6 +115,15 @@ $errors = [
     'terms' => []
 ];
 
+$allErrors = array_merge(
+    $errors['firstName'],
+    $errors['lastName'],
+    $errors['username'],
+    $errors['mail'],
+    $errors['country'],
+    $errors['terms']
+);
+
 $firstname = "";
 $lastname = "";
 $username = "";
@@ -152,7 +161,7 @@ if (isset($_POST['submit'])) {
         if (strlen($username) < 3) {
             $errors['username'][] = $languages['error_username_length'][$lang];
         }
-        if (!preg_match('/^[a-zA-Z0-9_]+$/', $username) && !preg_match('/_/', $username)) {
+        if (!preg_match('/^[a-zA-Z0-9]+$/', $username) || !preg_match('/_/', $username)) {
             $errors['username'][] = $languages['error_username_specialCharacters'][$lang];
         }
         if (!preg_match('/^(?!_).*(?<!_)$/', $username)) {
@@ -176,13 +185,16 @@ if (isset($_POST['submit'])) {
     //country validation
     if ($_POST['country'] == 0) {
         $errors['country'][] = $languages['error_country_required'][$lang];
+    } else {
+        $country = $_POST['country'];
     }
 
+    //terms validation
     if (isset($_POST['terms'])) {
         $terms = 1;
     }
 
-    if (count($errors) == 0) { // er werden geen fouten geregistreerd tijdens validatie
+    if (count($allErrors) == 0) { // er werden geen fouten geregistreerd tijdens validatie
         $newUser = registerNewUser($firstname, $lastname, $username, $mail, $country, $terms);
         if (!$newUser) {
             $errors[] = $languages['error_submit_newUser'][$lang];
@@ -374,7 +386,7 @@ print '</pre>';
 
                         <div class="form-check mb-4">
                             <input type="checkbox" class="form-check-input" id="terms" name="terms" value="1">
-                            <label class=" form-check-label" for="terms">I agree with the terms and conditions.</label>
+                            <label class="form-check-label" for="terms">I agree with the terms and conditions.</label>
                         </div>
                         <input class="w-100 btn btn-primary btn-lg" type="submit" name="submit" id="submit" value="submit">
                 </form>
